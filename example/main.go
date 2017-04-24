@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/plimble/jsonrpc"
 )
@@ -18,8 +17,14 @@ type AddRes struct {
 }
 
 func (a *Adder) Add(ctx context.Context, req *AddReq) (*AddRes, error) {
-	fmt.Println(ctx.Value("user"))
 	val := req.A + req.B
+	return &AddRes{
+		Val: val,
+	}, nil
+}
+
+func (a *Adder) Multiply(ctx context.Context, req *AddReq) (*AddRes, error) {
+	val := req.A * req.B
 	return &AddRes{
 		Val: val,
 	}, nil
