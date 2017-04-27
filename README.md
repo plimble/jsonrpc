@@ -1,5 +1,5 @@
 # jsonrpc
-Golang JSONRPC
+JSONRPC on echo
 
 ## Install
 
