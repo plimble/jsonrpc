@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/labstack/echo"
 	"github.com/plimble/jsonrpc"
 )
 
@@ -32,7 +33,10 @@ func (a *Adder) Multiply(ctx context.Context, req *AddReq) (*AddRes, error) {
 
 func main() {
 	j := jsonrpc.New()
-	j.RegisterService(new(Adder), "adder")
+	j.Register(new(Adder), "adder")
+	e := echo.New()
+	e.POST("/", j.Handle)
+	e.POST("/batch", j.HandleBatch)
 
-	j.Listen(":3000")
+	e.Start(":3000")
 }

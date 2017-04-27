@@ -29,6 +29,7 @@ package main
 import (
 	"context"
 
+	"github.com/labstack/echo"
 	"github.com/plimble/jsonrpc"
 )
 
@@ -58,9 +59,12 @@ func (a *Adder) Multiply(ctx context.Context, req *AddReq) (*AddRes, error) {
 
 func main() {
 	j := jsonrpc.New()
-	j.RegisterService(new(Adder), "adder")
+	j.Register(new(Adder), "adder")
+	e := echo.New()
+	e.POST("/", j.Handle)
+	e.POST("/batch", j.HandleBatch)
 
-	j.Listen(":3000")
+	e.Start(":3000")
 }
 ```
 
@@ -76,7 +80,7 @@ import (
 )
 
 func main() {
-	c := client.New("http://localhost:3000")
+	c := client.New("http://localhost:3000", "/", "/batch")
 	res, err := c.Request("adder.Add", client.Params{"a": 1, "b": 4})
 	if err != nil {
 		panic(err)
@@ -86,9 +90,8 @@ func main() {
 	}
 
 	result := make(map[string]interface{})
-	fmt.Println("@@@", res)
 	res.UnmarshalResult(&result)
-	fmt.Println("###", result)
+	fmt.Println("Result:", result)
 
 	ress, err := c.Requests(&client.Requests{
 		client.NewRequest("adder.Add", client.Params{"a": 1, "b": 2}),
@@ -102,9 +105,8 @@ func main() {
 
 	for _, res := range ress {
 		result := make(map[string]interface{})
-		fmt.Println("@@@", res)
 		res.UnmarshalResult(&result)
-		fmt.Println("###", result)
+		fmt.Println("Batch Result:", result)
 	}
 }
 ```

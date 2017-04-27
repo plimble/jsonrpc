@@ -11,11 +11,13 @@ import (
 )
 
 type Client struct {
-	addr string
+	addr      string
+	path      string
+	batchPath string
 }
 
-func New(addr string) *Client {
-	return &Client{addr}
+func New(addr, path, batchPath string) *Client {
+	return &Client{addr, addr + path, addr + batchPath}
 }
 
 func (c *Client) Request(method string, params Params) (*Response, error) {
@@ -27,7 +29,7 @@ func (c *Client) Request(method string, params Params) (*Response, error) {
 	}
 
 	reqJson, _ := json.Marshal(req)
-	httpreq, _ := http.NewRequest("POST", c.addr, bytes.NewBuffer(reqJson))
+	httpreq, _ := http.NewRequest("POST", c.path, bytes.NewBuffer(reqJson))
 	httpreq.Header.Set("Content-Type", "application/json; charset=utf-8")
 	res, err := http.DefaultClient.Do(httpreq)
 
@@ -45,9 +47,8 @@ func (c *Client) Request(method string, params Params) (*Response, error) {
 
 func (c *Client) Requests(reqs *Requests) (Responses, error) {
 	reqsJson, _ := json.Marshal(reqs)
-	httpreq, _ := http.NewRequest("POST", c.addr, bytes.NewBuffer(reqsJson))
+	httpreq, _ := http.NewRequest("POST", c.batchPath, bytes.NewBuffer(reqsJson))
 	httpreq.Header.Set("Content-Type", "application/json; charset=utf-8")
-	httpreq.Header.Set("X-Rpc", "Batch")
 	res, err := http.DefaultClient.Do(httpreq)
 
 	body, err := ioutil.ReadAll(res.Body)
